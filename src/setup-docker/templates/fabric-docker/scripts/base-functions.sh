@@ -1,5 +1,26 @@
 #!/usr/bin/env bash
 
+caCertsGenerate() {
+  local ROOT_DIR=$1
+  local CA_PORT=$2
+  local ORG_NAME=$3
+
+  echo "Generating certs..."
+  inputLog "ROOT_DIR $ROOT_DIR"
+  inputLog "CA_PORT $CA_PORT"
+  inputLog "ORG_NAME $ORG_NAME"
+
+  local WORK_DIR="$ROOT_DIR/certs"
+  local CA_ENROLL_ADDRESS="http://admin:adminpw@localhost:$CA_PORT"
+  local CA_ADDRESS="http://localhost:$CA_PORT"
+  local CLIENT_HOME="$WORK_DIR/$ORG_NAME"
+
+  mkdir -p "$CLIENT_HOME"
+
+  fabric-ca-client enroll -d -u "$CA_ENROLL_ADDRESS" -H "$CLIENT_HOME" --csr.hosts "localhost"
+  fabric-ca-client register -d --id.name user --id.secret userpw --id.type user -u "${CA_ADDRESS}" -H "$CLIENT_HOME"
+}
+
 certsGenerate() {
   local CONTAINER_NAME=certsGenerate
 

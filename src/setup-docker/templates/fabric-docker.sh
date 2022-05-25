@@ -13,12 +13,13 @@ source "$FABLO_NETWORK_ROOT/fabric-docker/commands-generated.sh"
 source "$FABLO_NETWORK_ROOT/fabric-docker/.env"
 
 networkUp() {
+  startAllCa
   generateArtifacts
-  startNetwork
-  generateChannelsArtifacts
-  installChannels
-  installChaincodes
-  notifyOrgsAboutChannels
+#  startNetwork
+#  generateChannelsArtifacts
+#  installChannels
+#  installChaincodes
+#  notifyOrgsAboutChannels
   printHeadline "Done! Enjoy your fresh network" "U1F984"
 }
 

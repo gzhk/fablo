@@ -3,18 +3,28 @@
 generateArtifacts() {
   printHeadline "Generating basic configs" "U1F913"
 
+#  <% orgs.forEach((org) => { -%>
+#    printItalics "Generating crypto material for <%= org.name %>" "U1F512"
+#    certsGenerate <% -%>
+#      "$FABLO_NETWORK_ROOT/fabric-config" <% -%>
+#      "<%= org.cryptoConfigFileName %>.yaml" <% -%>
+#      "peerOrganizations/<%= org.domain %>" <% -%>
+#      "$FABLO_NETWORK_ROOT/fabric-config/crypto-config/"
+#
+#  <% }) -%>
+
   <% orgs.forEach((org) => { -%>
     printItalics "Generating crypto material for <%= org.name %>" "U1F512"
-    certsGenerate <% -%>
-      "$FABLO_NETWORK_ROOT/fabric-config" <% -%>
-      "<%= org.cryptoConfigFileName %>.yaml" <% -%>
-      "peerOrganizations/<%= org.domain %>" <% -%>
-      "$FABLO_NETWORK_ROOT/fabric-config/crypto-config/"
 
+    caCertsGenerate <% -%>
+      "$FABLO_NETWORK_ROOT" <% -%>
+      "<%= org.ca.exposePort %>" <% -%>
+      "<%= org.name %>"
   <% }) -%>
-  <%_ ordererGroups.forEach((ordererGroup) => { _%>
-  printItalics "Generating genesis block for group <%= ordererGroup.name %>" "U1F3E0"
-  genesisBlockCreate "$FABLO_NETWORK_ROOT/fabric-config" "$FABLO_NETWORK_ROOT/fabric-config/config" "<%= ordererGroup.profileName %>"
+
+#  <%_ ordererGroups.forEach((ordererGroup) => { _%>
+#  printItalics "Generating genesis block for group <%= ordererGroup.name %>" "U1F3E0"
+#  genesisBlockCreate "$FABLO_NETWORK_ROOT/fabric-config" "$FABLO_NETWORK_ROOT/fabric-config/config" "<%= ordererGroup.profileName %>"
 
   <%_ }) _%>
   # Create directory for chaincode packages to avoid permission errors on linux
@@ -183,4 +193,14 @@ networkDown() {
   rm -rf "$FABLO_NETWORK_ROOT/fabric-config/chaincode-packages"
 
   printHeadline "Done! Network was purged" "U1F5D1"
+}
+
+startAllCa() {
+  printHeadline "Starting Fabric CAs" "U1F913"
+  (cd "$FABLO_NETWORK_ROOT"/fabric-docker && docker-compose up -d <%= orgs.map((org) => { return org.ca.address }).join(" ") %>)
+}
+
+killAllCa() {
+  printHeadline "Starting Fabric CAs" "U1F913"
+  (cd "$FABLO_NETWORK_ROOT"/fabric-docker && docker-compose down -v <%= orgs.map((org) => { return org.ca.address }).join(" ") %>)
 }
